@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Adivinhe a palavra</title>
+</head>
+
+<body>
+    
+    <header>
+    </header>
+
+    <div class="options">
+        <img src='./images/config.png'>
+        <img class='sound-icon' src="./images/no-sound.png">
+        <img class='sound-icon' src="./images/info.png">
+    </div>
+
+    <div class="config-modal">
+        <section class="config-options">
+            <div class="modal-header">
+                <h2>Configurações</h2>
+                <img src="./images/close-button.png">
+            </div>
+            <div class="word-size">
+                <span>Tamanho da Palavra</span>
+                <select class='select-word-size' name="select-word-size">
+                    <option value="five" selected>5</option>
+                    <option value="six">6</option>
+                </select>
+            </div>
+            <div class="mode">
+                <span>Habilitar Dicas</span>
+                <input type="checkbox" id="toggle" checked>
+                <label for="toggle">Toggle</label>
+            </div>
+           
+        </section>
+    </div>
+
+    <div class="info-modal">
+        <div class="modal-header">
+            <h2>Como Jogar ?</h2>
+            <img src="./images/close-button.png">
+        </div>
+        <div class="info-content">
+            <p>Você precisa acertar a <span style="color: blue">palavra correta.</span></p>
+            <p>São seis chances, com uma palavra de tamanho escolhido nas configurações.</p>
+            <p>É possivel habilitar ou desabilitar as dicas, que são cores correspontes as letras que estão na palavra desejada, podendo ou não estar na posição correta.</p>
+            <p>A cor <span style="color: blue">azul</span> indica o valor e posição corretos na palavra desejada.</p>
+            <div class="example rigth-position">
+                L
+            </div>
+            <p>A cor <span style="color: green">verde</span> indica o valor correto em posição diferente.</p>
+            <div class="example wrong-position">
+                A
+            </div>
+            <p>Caso não acerte nenhum valor a cor continuará igual.</p>
+            <p>Boa Sorte!</p>
+        
+        </div>
+        </div>
+    </div>
+    
+    <section class="words">
+    </section>
+
+    <section class="keyboard">
+       <div class="first-column"></div>
+       <div class="second-column"></div>
+       <div class="third-column"></div>
+    </section>
+</body>
+
+<script src="script.js" type="module"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Raleway:wght@300&family=Roboto+Condensed:wght@300&family=Rowdies:wght@300&display=swap" rel="stylesheet">
+
+</html>

@@ -1,0 +1,277 @@
+
+body {
+    background: #FBFBFF;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Raleway', sans-serif;
+}
+
+.options {
+    display: flex;
+    height: 30px;
+    margin-bottom: 50px;
+    column-gap: 8px;
+    padding: 8px 16px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 16px;
+}
+
+.options, img {
+    height: 30px;
+    cursor: pointer;
+}
+
+.words {
+    width: auto;
+    display: grid;
+    grid-row-gap: 16px;
+    justify-content: center;
+}
+
+.five-words {
+    grid-template-columns: repeat(5, 60px);
+}
+
+.example {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    font-weight: 500;
+    background-color: #221D23;
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.locker {
+    height: 20px;
+}
+
+.six-words {
+    grid-template-columns: repeat(6, 60px);
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    row-gap: 18px;
+    margin-top: 32px;
+}
+
+.first-column, .second-column {
+    width: auto;
+    display: grid;
+    grid-template-columns: repeat(10, 60px);
+    grid-row-gap: 16px;
+    justify-content: center;
+}
+
+.third-column {
+    width: auto;
+    display: grid;
+    grid-template-columns: repeat(9, 60px);
+    grid-row-gap: 16px;
+    justify-content: center;
+}
+
+.arrow-down {
+    width: 30px;
+}
+
+.word {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    font-weight: 500;
+    background-size: 200% 100%;
+    background-color: #221D23;
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: rotate3d(0, 1, 0, 180deg);
+}
+
+.lock {
+    background-color: #c4c3c3;
+}
+
+.fill-rigth-position {
+    background-position: -100% 0;
+    background-image: linear-gradient(to right, black 50%, blue 50%);
+}
+
+.rigth-position {
+    background-color: blue;
+    transform: rotate3d(0, 1, 0, 0);
+}
+
+.wrong-position {
+    background-color: green;
+    transform: rotate3d(0, 1, 0, 0);
+}
+
+
+.fill-wrong-position {
+    background-position: -100% 0;
+    background-image: linear-gradient(to right, black 50%, green 50%);
+}
+
+.fill-win {
+    background-position: -100% 0;
+    background-image: linear-gradient(to right, black 50%, blue 50%);
+}
+
+
+.key {
+    width: 50px;
+    height: 50px;
+    background: #657ED4;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    cursor: pointer;
+   
+}
+
+.enter {
+    background-color: #392F5A;
+    width: 120px;
+}
+
+.draw {
+    transform: rotate3d(0, 1, 0, 360deg);
+    transition: transform 0.8s ease;
+    transition-property: transform, background-position;
+    transition-duration: 0.8s;
+    transition-timing-function: ease;
+}
+
+.config-modal {
+    width: 100px;
+    height: 100px;
+    background-color: #cacfdb;
+    display: none;
+}
+
+.open-config {
+    display: block;
+    position: absolute;
+    width: 400px;
+    height: 280px;
+    border-radius: 10px;
+    margin-left: calc(50% - 200px);
+    z-index: 1;
+}
+
+.info-modal {
+    background-color: #cacfdb;
+    display: none;
+}
+
+.open-info {
+    display: block;
+    position: absolute;
+    border-radius: 10px;
+    width: 600px;
+    margin-left: calc(50% - 300px);
+    z-index: 1;
+}
+
+.info-content {
+    margin: 16px;
+}
+
+.info-content p {
+    font-size: 18px;
+}
+
+
+.key-pressed {
+    transform: scale(0.9) scale(1);
+}
+
+.key-drop {
+    transform: scale(0.9) scale(1);
+}
+
+.config-options {
+    display: flex;
+    flex-direction: column;
+    row-gap: 32px;
+}
+
+.config-options h2 {
+    text-align: center;
+}
+
+.word-size, .mode {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 16px;
+    align-items: center;
+    font-size: 18px;
+}
+
+select {
+    border: none;
+    border-radius: 8px;
+    background: #45506c;
+    color: white;
+    padding: 8px;
+    cursor: pointer;
+}
+
+input[type=checkbox]{
+    height: 0;
+    width: 0;
+    visibility: hidden;
+}
+
+label {
+    cursor: pointer;
+    text-indent: -9999px;
+    width: 54px;
+    height: 32px;
+    background: grey;
+    display: block;
+    border-radius: 100px;
+    position: relative;
+}
+
+label:after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 90px;
+    transition: 0.3s;
+}
+
+input:checked + label {
+    background: #5b3ddc;
+}
+
+input:checked + label:after {
+    left: calc(100% - 5px);
+    transform: translateX(-100%);
+}
+
+.modal-header, h2 {
+    color: #45506c;
+}
+
