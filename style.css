@@ -43,6 +43,7 @@ body {
     height: 50px;
     font-size: 22px;
     font-weight: 500;
+    background-size: 200% 100%;
     background-color: #221D23;
     color: white;
     border-radius: 5px;
@@ -107,12 +108,17 @@ body {
 
 .fill-rigth-position {
     background-position: -100% 0;
-    background-image: linear-gradient(to right, black 50%, blue 50%);
+    background-image: linear-gradient(to top, blue 100%, black 0);
 }
 
 .rigth-position {
     background-color: blue;
     transform: rotate3d(0, 1, 0, 0);
+}
+
+.fill-invalid-word {
+    background-position: -100% 0;
+    background-image: linear-gradient(to top, black 50%, red 50%);
 }
 
 .wrong-position {
@@ -275,3 +281,7 @@ input:checked + label:after {
     color: #45506c;
 }
 
+.discovered {
+    opacity: 0.6;
+    pointer-events: none;
+}

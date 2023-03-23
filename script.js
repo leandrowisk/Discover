@@ -1,15 +1,29 @@
 import {five, six} from './data/data.js';
 let wordsNumber;
 let checkedIndex = 0;
-let match = getTargetWord();
 let currentWord = '';
 let tips = true;
 let end = false;
+let target = '';
 let size = 5;
 let sound = false;
 
 
 window.onload = ()=> {
+    let today = getTodayDate();
+    let tommorow = getTommorowDate();
+    localStorage.setItem('end', '');
+    if (!localStorage.getItem('today')) {
+        localStorage.setItem('end', '');
+        localStorage.setItem('today', today)
+        localStorage.setItem('target', getTargetWord());
+    }
+    if (tommorow > localStorage.getItem('today')) {
+        localStorage.setItem('end', '');
+        localStorage.setItem('today', tommorow);
+        localStorage.setItem('target', getTargetWord());
+    }
+    target = localStorage.getItem('target');
     setWordSize();
     buildWords(size);
     buildKeyboard();
@@ -23,6 +37,17 @@ window.onload = ()=> {
     enableSound();
 }
 
+function getTodayDate() {
+    let today = new Date().toLocaleDateString();
+    return today;
+}
+
+function getTommorowDate() {
+    let tommorow = new Date();
+    tommorow.setDate(tommorow.getDate() + 1)
+    return tommorow;
+}
+
 function setWordSize() {
     let select = document.querySelector(".select-word-size");
     let selectedIndex = select.options.selectedIndex;
@@ -34,8 +59,11 @@ function setWordSize() {
     }
 }
 
-function buildWords(size)  {
-    const words = document.querySelector('.words');
+function buildWords(size) {
+    const localHistory = JSON.parse(localStorage.getItem('history'));
+    const finish = Boolean(localStorage.getItem('end'));
+    let words;
+    words = document.querySelector('.words');
     if (size == 5) {
         wordsNumber = 30;
         words.classList.remove('six-words');
@@ -53,8 +81,13 @@ function buildWords(size)  {
 
     for (let i=0; i<wordsNumber; i++) {
         const word = words.appendChild(document.createElement(`div`));
+        if (finish && localHistory && i<=localHistory.length - 1) {
+            word.textContent = localHistory[i]['wordContent'];
+            word.classList.add('draw');
+            word.classList.add(localHistory[i]['fillClass']);
+        }
         word.classList.add('word');
-        if (i >= 5) {
+        if (i >= 5 && !localHistory) {
             word.appendChild(document.createElement('img')).src = './images/bloquear.png';
             word.classList.add('lock');
             word.children[0].classList.add('locker');
@@ -135,7 +168,6 @@ function openInfo() {
 function closeInfo() {
     let header = document.querySelectorAll('.modal-header');
     header[1].children[1].addEventListener('click', ()=> {
-        console.log('entrou')
         playSound('./sounds/click-option.mp3');
         let optionsWindow = document.querySelector('.info-modal');
         optionsWindow.classList.remove('open-info');
@@ -158,14 +190,12 @@ function changeWordSize() {
     });
 }
 
-
 function playSound(path) {
     if (sound) {
         let audio = new Audio(path);
         audio.play();
     }
 }
-
 
 function getTargetWord() {
     return five[Math.floor(Math.random() * five.length)];
@@ -180,7 +210,7 @@ const deleteWord = (words, emptyIndex) => {
 }
 
 function drawLetter(letter) {
-    const words = document.querySelectorAll('.word');
+    let words = document.querySelectorAll('.word');
     let allow;
     for(let wordIndex=0; wordIndex<words.length; wordIndex++) {
         if (words[wordIndex].innerHTML == '' || words[wordIndex].childElementCount == 1) {
@@ -192,7 +222,10 @@ function drawLetter(letter) {
                 getCurrentWord(words);
             }
             if (letter == 'Enter' && currentWord) {
-                checkWin(wordIndex);
+                if (five.includes(currentWord))
+                    checkWin(wordIndex);
+                else
+                    alert('Essa palavra não existe')
                 if (!end)
                     unlockNextWord(words)
             }
@@ -211,7 +244,6 @@ function drawLetter(letter) {
         }
     }
 }
-
 
 function unlockNextWord(words) {
     if (checkedIndex) {
@@ -260,38 +292,55 @@ function checkWin(index) {
     let breakIndexes = [5, 6, 10, 11, 15, 16, 20, 21];
     let startIndex = 0;
     let loopIdx = getLoopStartIndex(index);
-    const words = document.querySelectorAll('.word');
+    let words = document.querySelectorAll('.word');
+    let history = [];
     if (breakIndexes.includes(index)) {
         for (let i=loopIdx; i<=index - 1; i++) {
             if (tips) {
-                setTips(words[i], startIndex);
+                let letter = words[i]
+                setTips(letter, startIndex);
+                blockKey(letter)
             }
             word += words[i].textContent.toLowerCase();
         }
     }
-    if (word == match) {
+    if (word == target) {
         playSound('./sounds/win.mp3');
         for (let i=loopIdx; i<=index - 1; i++) {
             words[i].classList.add('fill-win');
         }
         end = true;
+        localStorage.setItem('end', end);
+    }
+    for (let i=0; i<index; i++) {
+        let classList =  words[i].classList;
+        history.push({'wordContent': words[i].textContent, 'fillClass':classList.item(classList.length - 1)});
+    }
+    localStorage.setItem('history', JSON.stringify(history));
+}
+
+function blockKey(letter) {
+    let keys = document.querySelectorAll('.key');
+    for (let i=0; i<keys.length; i++) {
+        if (keys[i].textContent == letter.textContent && (!letter.classList.contains('fill-rigth-position') && !letter.classList.contains('fill-wrong-position'))) {
+            keys[i].classList.add('discovered');
+        }
     }
 }
 
-function setTips(word, startIndex) {
-    let char = word.textContent.toLowerCase();
-    if (match.includes(char)) {
-        if (match.indexOf(char, startIndex) == currentWord.indexOf(char, startIndex)) {
+function setTips(letter, startIndex) {
+    let char = letter.textContent.toLowerCase();
+    if (target.includes(char)) {
+        if (target.indexOf(char, startIndex) == currentWord.indexOf(char, startIndex)) {
             startIndex = currentWord.indexOf(char) + 1;
-            word.classList.add('fill-rigth-position');
+            letter.classList.add('fill-rigth-position');
             playSound('./sounds/fill.mp3');
         }
         else {
-            word.classList.add('fill-wrong-position');
+            letter.classList.add('fill-wrong-position');
         }
     } 
 }
-
 
 function enableSound() {
     let options = document.querySelector('.options');
