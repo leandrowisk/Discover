@@ -10,7 +10,6 @@ body {
 .options {
     display: flex;
     height: 30px;
-    margin-bottom: 50px;
     column-gap: 8px;
     padding: 8px 16px;
 }
@@ -108,7 +107,7 @@ body {
 
 .fill-rigth-position {
     background-position: -100% 0;
-    background-image: linear-gradient(to top, blue 100%, black 0);
+    background-image: linear-gradient(to right, black 50%, blue 50%);
 }
 
 .rigth-position {
@@ -116,9 +115,43 @@ body {
     transform: rotate3d(0, 1, 0, 0);
 }
 
-.fill-invalid-word {
-    background-position: -100% 0;
-    background-image: linear-gradient(to top, black 50%, red 50%);
+.invalid-alert {
+    display: flex;
+    justify-content: center;
+    padding: 18px;
+    visibility: hidden;
+}
+
+.show-invalid-alert {
+    animation: Invalidlert 2s;
+}
+
+@keyframes Invalidlert {
+    0% {
+        visibility: visible;
+        
+    }
+    25% {
+        transform: rotate(-5deg);
+    }
+    40% {
+        transform: rotate(5deg);
+    }
+    60% {
+        transform: translate(0);
+    } 
+    to {
+        visibility: hidden;
+    }
+}
+
+.invalid-alert span {
+    background: red;
+    padding: 16px;
+    font-size: 18px;
+    color: white;
+    font-weight: bold;
+    border-radius: 20px;
 }
 
 .wrong-position {

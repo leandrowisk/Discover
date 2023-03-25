@@ -6,22 +6,26 @@ let tips = true;
 let end = false;
 let target = '';
 let size = 5;
-let sound = false;
+let sound = true;
+let validWord = true;
 
 
 window.onload = ()=> {
     let today = getTodayDate();
     let tommorow = getTommorowDate();
     localStorage.setItem('end', '');
+    localStorage.setItem('history', JSON.stringify(false));
     if (!localStorage.getItem('today')) {
         localStorage.setItem('end', '');
         localStorage.setItem('today', today)
         localStorage.setItem('target', getTargetWord());
+        localStorage.setItem('history', '');
     }
     if (tommorow > localStorage.getItem('today')) {
         localStorage.setItem('end', '');
         localStorage.setItem('today', tommorow);
         localStorage.setItem('target', getTargetWord());
+        localStorage.setItem('history', JSON.stringify(true));
     }
     target = localStorage.getItem('target');
     setWordSize();
@@ -87,7 +91,7 @@ function buildWords(size) {
             word.classList.add(localHistory[i]['fillClass']);
         }
         word.classList.add('word');
-        if (i >= 5 && !localHistory) {
+        if (i >= 5 && Boolean(!localHistory)) {
             word.appendChild(document.createElement('img')).src = './images/bloquear.png';
             word.classList.add('lock');
             word.children[0].classList.add('locker');
@@ -129,6 +133,8 @@ function addKeyListener() {
     keys.forEach(element=> {
         element.addEventListener("click", (event)=> {
             if (!end) {
+                let invalidAlert = document.querySelector('.invalid-alert');
+                invalidAlert.classList.remove('show-invalid-alert');
                 playSound('./sounds/keypress.mp3');
                 let letter = event.target.innerText;
                 drawLetter(letter);
@@ -198,12 +204,14 @@ function playSound(path) {
 }
 
 function getTargetWord() {
-    return five[Math.floor(Math.random() * five.length)];
+    let target = five[Math.floor(Math.random() * five.length)];
+    target = target.normalize("NFD").replace(/[^a-zA-Z\s]/g, "");
+    return target;
 }
 
 const deleteWord = (words, emptyIndex) => {
     const lastWord = emptyIndex - 1;
-    if (lastWord >= 0 && lastWord != checkedIndex - 1) {
+    if ((lastWord >= 0 && lastWord != checkedIndex - 1 && validWord) || (lastWord >= checkedIndex - 5 && !validWord)) {
         words[lastWord].innerHTML = '';
         words[lastWord].classList.remove('draw');
     }
@@ -222,14 +230,21 @@ function drawLetter(letter) {
                 getCurrentWord(words);
             }
             if (letter == 'Enter' && currentWord) {
-                if (five.includes(currentWord))
+                if (five.includes(currentWord)) {
                     checkWin(wordIndex);
-                else
-                    alert('Essa palavra não existe')
-                if (!end)
+                    validWord = true;
+                }
+                else {
+                    buildAlert("Palavra inválida");
+                    validWord = false;
+                }
+                if (!end && validWord)
                     unlockNextWord(words)
             }
-            if ((allow || checkedIndex == wordIndex) && (letter != 'Enter' && letter != 'x')) {
+            else if (letter == 'Enter' && !currentWord) {
+                buildAlert("A palavra deve conter 5 letras!");
+            }
+            if ((allow || checkedIndex == wordIndex && validWord || (!validWord && wordIndex > currentWord.length)) && (letter != 'Enter' && letter != 'x')) {
                 words[wordIndex].classList.add('draw');
                 setTimeout(()=> {
                     words[wordIndex].innerHTML = letter;
@@ -245,6 +260,17 @@ function drawLetter(letter) {
     }
 }
 
+function buildAlert(message) {
+    let invalidAlert = document.querySelector('.invalid-alert');
+    let alertContent = document.querySelector('.alert-content')
+    if (alertContent) {
+        invalidAlert.removeChild(alertContent);
+    }
+    invalidAlert.appendChild(document.createElement('span')).textContent = message;
+    invalidAlert.childNodes[1].classList.add('alert-content');
+    invalidAlert.classList.add('show-invalid-alert');
+}
+
 function unlockNextWord(words) {
     if (checkedIndex) {
         for (let i=checkedIndex; i<=checkedIndex + 4; i++) {
@@ -255,12 +281,14 @@ function unlockNextWord(words) {
 }
 
 function getCurrentWord(words) {
-    currentWord = '';
+    currentWord = ''
     let startIdx = getLoopStartIndex(checkedIndex);
     for (let i=startIdx; i<=checkedIndex; i++) {
         currentWord += words[i].textContent;
         currentWord = currentWord.toLowerCase();
     }
+    if (currentWord.length < 5)
+        currentWord = '';
 }
 
 function getLoopStartIndex(index) {
@@ -273,10 +301,10 @@ function checkAllow(wordIndex, letter) {
     let breakIndexes;
     let allow = true;
     if (wordsNumber == 30) {
-        breakIndexes = [5, 10, 15, 20];
+        breakIndexes = [5, 10, 15, 20, 25, 30];
     }
     else {
-        breakIndexes = [6, 11, 16, 21];
+        breakIndexes = [6, 11, 16, 21, 26, 31];
     }
     if (breakIndexes.includes(wordIndex) && letter != 'Enter') {
         allow = false;
@@ -289,17 +317,19 @@ function checkAllow(wordIndex, letter) {
 
 function checkWin(index) {
     let word = '';
-    let breakIndexes = [5, 6, 10, 11, 15, 16, 20, 21];
+    let breakIndexes = [5, 6, 10, 11, 15, 16, 20, 21, 25, 26, 30, 31];
     let startIndex = 0;
     let loopIdx = getLoopStartIndex(index);
     let words = document.querySelectorAll('.word');
     let history = [];
     if (breakIndexes.includes(index)) {
+        let checkedChars = [];
+        let notBlockLetters = [];
         for (let i=loopIdx; i<=index - 1; i++) {
             if (tips) {
                 let letter = words[i]
-                setTips(letter, startIndex);
-                blockKey(letter)
+                setTips(letter, startIndex, checkedChars);
+                blockKey(letter, notBlockLetters)
             }
             word += words[i].textContent.toLowerCase();
         }
@@ -311,26 +341,36 @@ function checkWin(index) {
         }
         end = true;
         localStorage.setItem('end', end);
+        for (let i=0; i<index; i++) {
+            let classList =  words[i].classList;
+            history.push({'wordContent': words[i].textContent, 'fillClass':classList.item(classList.length - 1)});
+        }
+        localStorage.setItem('history', JSON.stringify(history));
     }
-    for (let i=0; i<index; i++) {
-        let classList =  words[i].classList;
-        history.push({'wordContent': words[i].textContent, 'fillClass':classList.item(classList.length - 1)});
-    }
-    localStorage.setItem('history', JSON.stringify(history));
 }
 
-function blockKey(letter) {
+function blockKey(letter, notBlockLetters) {
     let keys = document.querySelectorAll('.key');
-    for (let i=0; i<keys.length; i++) {
-        if (keys[i].textContent == letter.textContent && (!letter.classList.contains('fill-rigth-position') && !letter.classList.contains('fill-wrong-position'))) {
-            keys[i].classList.add('discovered');
+    let classList = ["fill-rigth-position", "fill-wrong-position", "fill-win"];
+    let block = true;
+    for (let i=0; i<=letter.classList.length; i++) {
+        if (classList.includes(letter.classList[i])) {
+            block = false;
+            notBlockLetters.push(letter.textContent);
+        }
+        if (notBlockLetters.includes(letter.textContent)) {
+            block = false;
         }
     }
+    for (let i=0; i<keys.length; i++) {
+        if ((keys[i].textContent == letter.textContent) && block)
+            keys[i].classList.add('discovered');
+    }
 }
 
-function setTips(letter, startIndex) {
+function setTips(letter, startIndex, checkedChars) {
     let char = letter.textContent.toLowerCase();
-    if (target.includes(char)) {
+    if (target.includes(char) && !checkedChars.includes(char)) {
         if (target.indexOf(char, startIndex) == currentWord.indexOf(char, startIndex)) {
             startIndex = currentWord.indexOf(char) + 1;
             letter.classList.add('fill-rigth-position');
@@ -339,6 +379,7 @@ function setTips(letter, startIndex) {
         else {
             letter.classList.add('fill-wrong-position');
         }
+        checkedChars.push(char);
     } 
 }
 
