@@ -146,6 +146,7 @@ function addKeyListener() {
 function openConfig() {
     let options = document.querySelector('.options');
     options.children[0].addEventListener('click', ()=> {
+        blockFields();
         playSound('./sounds/click-option.mp3');
         let optionsWindow = document.querySelector('.config-modal');
         optionsWindow.classList.add('open-config');
@@ -155,6 +156,7 @@ function openConfig() {
 function closeConfig() {
     let header = document.querySelector('.modal-header');
     header.children[1].addEventListener('click', ()=> { 
+        blockFields();
         playSound('./sounds/click-option.mp3');
         let optionsWindow = document.querySelector('.config-modal');
         optionsWindow.classList.remove('open-config');
@@ -165,6 +167,7 @@ function closeConfig() {
 function openInfo() {
     let options = document.querySelector('.options');
     options.children[2].addEventListener('click', ()=> {
+        blockFields();
         playSound('./sounds/click-option.mp3');
         let optionsWindow = document.querySelector('.info-modal');
         optionsWindow.classList.add('open-info');
@@ -174,10 +177,17 @@ function openInfo() {
 function closeInfo() {
     let header = document.querySelectorAll('.modal-header');
     header[1].children[1].addEventListener('click', ()=> {
+        blockFields();
         playSound('./sounds/click-option.mp3');
         let optionsWindow = document.querySelector('.info-modal');
         optionsWindow.classList.remove('open-info');
     });
+}
+
+function blockFields() {
+    document.querySelector('.keyboard').classList.toggle('block');
+    document.querySelector('.options').classList.toggle('block');
+    document.querySelector('.words').classList.toggle('block');
 }
 
 function allowTips() {

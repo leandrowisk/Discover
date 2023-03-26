@@ -174,8 +174,8 @@ body {
 
 
 .key {
-    width: 60px;
-    height: 54px;
+    width: 56px;
+    height: 50px;
     background: #657ED4;
     color: white;
     display: flex;
@@ -321,6 +321,11 @@ input:checked + label:after {
     pointer-events: none;
 }
 
+.block {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 @media (max-width:480px) {
     .invalid-alert {
         position: absolute;
@@ -363,5 +368,16 @@ input:checked + label:after {
 
     .enter {
         width: 72px;
+    }
+    
+    .info-modal {
+        width: 90%;
+        margin-left: 5%;
+    }
+
+    .config-modal {
+        width: 90%;
+        margin-left: 5%;
+        margin-top: 50%;
     }
 }
