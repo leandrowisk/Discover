@@ -13,6 +13,7 @@ let validWord = true;
 window.onload = ()=> {
     let today = getTodayDate();
     let tommorow = getTommorowDate();
+    let select = document.querySelector('.select-word-size');
     localStorage.setItem('end', '');
     localStorage.setItem('history', JSON.stringify(false));
     if (!localStorage.getItem('today')) {
@@ -28,6 +29,8 @@ window.onload = ()=> {
         localStorage.setItem('history', JSON.stringify(true));
     }
     target = localStorage.getItem('target');
+    size = JSON.parse(localStorage.getItem('size'));
+    select.options.selectedIndex = JSON.parse(localStorage.getItem('word-size'));
     setWordSize();
     buildWords(size);
     buildKeyboard();
@@ -54,12 +57,15 @@ function getTommorowDate() {
 
 function setWordSize() {
     let select = document.querySelector(".select-word-size");
-    let selectedIndex = select.options.selectedIndex;
+    localStorage.setItem('word-size', JSON.stringify(select.options.selectedIndex));
+    let selectedIndex = JSON.parse(localStorage.getItem('word-size'));
     if (selectedIndex) {
         size = 6;
+        localStorage.setItem('size', JSON.stringify(size))
     }
     else {
         size = 5;
+        localStorage.setItem('size',  JSON.stringify(size))
     }
 }
 
@@ -91,7 +97,7 @@ function buildWords(size) {
             word.classList.add(localHistory[i]['fillClass']);
         }
         word.classList.add('word');
-        if (i >= 5 && Boolean(!localHistory)) {
+        if (i >= size && Boolean(!localHistory)) {
             word.appendChild(document.createElement('img')).src = './images/bloquear.png';
             word.classList.add('lock');
             word.children[0].classList.add('locker');
@@ -221,7 +227,7 @@ function getTargetWord() {
 
 const deleteWord = (words, emptyIndex) => {
     const lastWord = emptyIndex - 1;
-    if ((lastWord >= 0 && lastWord != checkedIndex - 1 && validWord) || (lastWord >= checkedIndex - 5 && !validWord)) {
+    if ((lastWord >= 0 && lastWord != checkedIndex - 1 && validWord) || (lastWord >= checkedIndex - size && !validWord)) {
         words[lastWord].innerHTML = '';
         words[lastWord].classList.remove('draw');
     }
@@ -240,7 +246,11 @@ function drawLetter(letter) {
                 getCurrentWord(words);
             }
             if (letter == 'Enter' && currentWord) {
-                if (five.includes(currentWord)) {
+                if (five && five.includes(currentWord)) {
+                    checkWin(wordIndex);
+                    validWord = true;
+                }
+                else if (six && six.includes(currentWord)) {
                     checkWin(wordIndex);
                     validWord = true;
                 }
@@ -252,7 +262,7 @@ function drawLetter(letter) {
                     unlockNextWord(words)
             }
             else if (letter == 'Enter' && !currentWord) {
-                buildAlert("A palavra deve conter 5 letras!");
+                buildAlert(`A palavra deve conter ${size} letras!`);
             }
             if ((allow || checkedIndex == wordIndex && validWord || (!validWord && wordIndex > currentWord.length)) && (letter != 'Enter' && letter != 'x')) {
                 words[wordIndex].classList.add('draw');
@@ -282,8 +292,9 @@ function buildAlert(message) {
 }
 
 function unlockNextWord(words) {
+    let wordSize = size - 1
     if (checkedIndex) {
-        for (let i=checkedIndex; i<=checkedIndex + 4; i++) {
+        for (let i=checkedIndex; i<=checkedIndex + wordSize; i++) {
             words[i].removeChild(words[i].childNodes[0]);
             words[i].classList.remove('lock');
         }
@@ -297,7 +308,7 @@ function getCurrentWord(words) {
         currentWord += words[i].textContent;
         currentWord = currentWord.toLowerCase();
     }
-    if (currentWord.length < 5)
+    if (currentWord.length < size)
         currentWord = '';
 }
 
@@ -310,11 +321,11 @@ function getLoopStartIndex(index) {
 function checkAllow(wordIndex, letter) {
     let breakIndexes;
     let allow = true;
-    if (wordsNumber == 30) {
+    if (size == 5) {
         breakIndexes = [5, 10, 15, 20, 25, 30];
     }
     else {
-        breakIndexes = [6, 11, 16, 21, 26, 31];
+        breakIndexes = [6, 12, 18, 24, 30, 36];
     }
     if (breakIndexes.includes(wordIndex) && letter != 'Enter') {
         allow = false;
