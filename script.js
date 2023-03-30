@@ -8,6 +8,7 @@ let target = '';
 let size = 5;
 let sound = true;
 let validWord = true;
+let startIndex = 0;
 
 
 window.onload = ()=> {
@@ -16,6 +17,8 @@ window.onload = ()=> {
     let select = document.querySelector('.select-word-size');
     localStorage.setItem('end', '');
     localStorage.setItem('history', JSON.stringify(false));
+    size = JSON.parse(localStorage.getItem('size'));
+    localStorage.setItem('target', getTargetWord());
     if (!localStorage.getItem('today')) {
         localStorage.setItem('end', '');
         localStorage.setItem('today', today)
@@ -29,7 +32,6 @@ window.onload = ()=> {
         localStorage.setItem('history', JSON.stringify(true));
     }
     target = localStorage.getItem('target');
-    size = JSON.parse(localStorage.getItem('size'));
     select.options.selectedIndex = JSON.parse(localStorage.getItem('word-size'));
     setWordSize();
     buildWords(size);
@@ -220,7 +222,11 @@ function playSound(path) {
 }
 
 function getTargetWord() {
-    let target = five[Math.floor(Math.random() * five.length)];
+    let target = '';
+    if (size == 5)
+        target = five[Math.floor(Math.random() * five.length)];
+    else
+        target = six[Math.floor(Math.random() * six.length)];
     target = target.normalize("NFD").replace(/[^a-zA-Z\s]/g, "");
     return target;
 }
@@ -338,19 +344,19 @@ function checkAllow(wordIndex, letter) {
 
 function checkWin(index) {
     let word = '';
-    let breakIndexes = [5, 6, 10, 11, 15, 16, 20, 21, 25, 26, 30, 31];
-    let startIndex = 0;
+    let breakIndexes = [5, 6, 10, 12, 15, 18, 20, 24, 25, 30, 30, 36];
     let loopIdx = getLoopStartIndex(index);
     let words = document.querySelectorAll('.word');
     let history = [];
     if (breakIndexes.includes(index)) {
         let checkedChars = [];
         let notBlockLetters = [];
+        startIndex = 0;
         for (let i=loopIdx; i<=index - 1; i++) {
             if (tips) {
                 let letter = words[i]
-                setTips(letter, startIndex, checkedChars);
-                blockKey(letter, notBlockLetters)
+                setTips(letter, checkedChars);
+                blockKey(letter, notBlockLetters);
             }
             word += words[i].textContent.toLowerCase();
         }
@@ -389,19 +395,20 @@ function blockKey(letter, notBlockLetters) {
     }
 }
 
-function setTips(letter, startIndex, checkedChars) {
+function setTips(letter, checkedChars) {
     let char = letter.textContent.toLowerCase();
-    if (target.includes(char) && !checkedChars.includes(char)) {
+    checkedChars.push(char);
+    if (target.includes(char)) {
         if (target.indexOf(char, startIndex) == currentWord.indexOf(char, startIndex)) {
-            startIndex = currentWord.indexOf(char) + 1;
+            startIndex = currentWord.indexOf(char) + 2;
             letter.classList.add('fill-rigth-position');
             playSound('./sounds/fill.mp3');
         }
         else {
+            playSound('./sounds/fill.mp3');
             letter.classList.add('fill-wrong-position');
         }
-        checkedChars.push(char);
-    } 
+    }
 }
 
 function enableSound() {
