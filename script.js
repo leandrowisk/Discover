@@ -9,6 +9,7 @@ let size = 5;
 let sound = true;
 let validWord = true;
 let startIndex = 0;
+let oneOcurrence = [];
 
 
 window.onload = ()=> {
@@ -32,6 +33,8 @@ window.onload = ()=> {
         localStorage.setItem('history', JSON.stringify(true));
     }
     target = localStorage.getItem('target');
+    target = 'carro'
+    console.log('Target', target)
     select.options.selectedIndex = JSON.parse(localStorage.getItem('word-size'));
     setWordSize();
     buildWords(size);
@@ -208,9 +211,10 @@ function allowTips() {
 
 function changeWordSize() {
     let select = document.querySelector('.select-word-size');
-    select.addEventListener('click', ()=> {
+    select.addEventListener('change', ()=> {
         setWordSize();
         buildWords(size);
+        resetKeys();
     });
 }
 
@@ -348,6 +352,7 @@ function checkWin(index) {
     let loopIdx = getLoopStartIndex(index);
     let words = document.querySelectorAll('.word');
     let history = [];
+    oneOcurrence = [];
     if (breakIndexes.includes(index)) {
         let checkedChars = [];
         let notBlockLetters = [];
@@ -395,12 +400,23 @@ function blockKey(letter, notBlockLetters) {
     }
 }
 
+function resetKeys() {
+    let keys = document.querySelectorAll('.key');
+    for (let i=0; i<keys.length; i++) {
+        if (keys[i].classList.contains('discovered'))
+            keys[i].classList.remove('discovered');
+    }
+}
+
 function setTips(letter, checkedChars) {
     let char = letter.textContent.toLowerCase();
     checkedChars.push(char);
-    if (target.includes(char)) {
+    let nextIndexSum = 1;
+    if (size == 6)
+        nextIndexSum = 2;
+    if (target.includes(char) && !oneOcurrence.includes(char)) {
         if (target.indexOf(char, startIndex) == currentWord.indexOf(char, startIndex)) {
-            startIndex = currentWord.indexOf(char) + 2;
+            startIndex = currentWord.indexOf(char) + nextIndexSum;
             letter.classList.add('fill-rigth-position');
             playSound('./sounds/fill.mp3');
         }
@@ -408,6 +424,8 @@ function setTips(letter, checkedChars) {
             playSound('./sounds/fill.mp3');
             letter.classList.add('fill-wrong-position');
         }
+        if (target.split(char).length - 1 == 1)
+            oneOcurrence.push(char);
     }
 }
 
